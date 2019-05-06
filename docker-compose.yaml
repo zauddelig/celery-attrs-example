@@ -1,0 +1,24 @@
+version: '3'
+services:
+  order:
+    image: send_test_order:latest
+    build: .
+    command: python order/task.py
+    depends_on:
+      - rabbitmq
+  billing:
+    image: send_test_order:latest
+    build: .
+    command: celery worker -A billing.app -l INFO -n billing
+    depends_on:
+      - order
+      - rabbitmq
+  logistic:
+    image: send_test_order:latest
+    build: .
+    command:  celery worker -A logistic.app -l INFO -n logistic
+    depends_on:
+      - order
+      - rabbitmq
+  rabbitmq:
+    image: "rabbitmq"
